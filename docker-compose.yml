@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  mysql:
+    build: ./mysql
+    container_name: mysql_container
+    networks:
+      - db_network
+    ports:
+      - "5655:3306"
+    volumes:
+      - db_volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: test_db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  app:
+    build: ./app
+    container_name: app
+    networks:
+      - db_network
+      - site_network
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql_container
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: test_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4743/health"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - "4743:4743"
+
+  nginx:
+    build: ./nginx  # This will build from the Dockerfile in ./nginx directory
+    container_name: nginx
+    networks:
+      - site_network
+    depends_on:
+      - app
+    ports:
+      - "5423:5423"  # Expose port 5423 for the Nginx server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5423/health"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+volumes:
+  db_volume:
+
+networks:
+  db_network:
+    driver: bridge
+  site_network:
+    driver: bridge

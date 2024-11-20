@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Données de la base de données</title>
+</head>
+<body>
+    <h1>Données récupérées de la base de données</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom de données</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.id }}</td> <!-- Affichage de l'ID -->
+                <td>{{ row.data }}</td> <!-- Affichage de la colonne "data" -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
